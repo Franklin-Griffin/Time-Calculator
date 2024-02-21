@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Time Calculator</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f2f2f2;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+    
+            .calculator {
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                text-align: center;
+            }
+    
+            input[type="text"], select, button {
+                margin: 5px;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+    
+            button {
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+    
+            button:hover {
+                background-color: #45a049;
+            }
+    
+            p {
+                font-size: 18px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="calculator">
+            <h1>Time Calculator</h1>
+            <p>minutes:seconds.milliseconds</p>
+            <input type="text" id="timeInput" placeholder="Enter time">
+            <select id="operation">
+                <option value="add">+</option>
+                <option value="subtract">-</option>
+                <option value="multiply">x</option>
+                <option value="divide">/</option>
+            </select>
+            <input type="text" id="operand" placeholder="Enter time">
+            <button id="calculate">Calculate</button>
+            <p id="result"></p>
+        </div>
+
+        <script>
+            document.getElementById('operation').addEventListener('change', function() {
+                const operation = document.getElementById('operation').value;
+                const operandInput = document.getElementById('operand');
+                
+                if (operation === 'add' || operation === 'subtract') {
+                    operandInput.placeholder = 'Enter time';
+                } else {
+                    operandInput.placeholder = 'Enter number';
+                }
+            });
+
+            document.getElementById('calculate').addEventListener('click', calculate);
+        
+            document.getElementById('timeInput').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    calculate();
+                }
+            });
+
+            document.getElementById('operand').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    calculate();
+                }
+            });
+
+            function calculate() {
+                const timeInput = document.getElementById('timeInput').value;
+                const operation = document.getElementById('operation').value;
+                const operand = document.getElementById('operand').value;
+
+                const timeRegex = /^(\d{1,2}):(\d{2})$/;
+                const timeRegexMillisec = /^(\d{1,2}):(\d{2})\.(\d+)$/;
+
+                if (!(timeRegex.test(timeInput) || timeRegexMillisec.test(timeInput))) {
+                    document.getElementById('result').textContent = 'Invalid time format. Please use MM:SS.mm';
+                    return;
+                }
+
+                if ((operation === 'add' || operation === 'subtract') && !(timeRegex.test(operand) || timeRegexMillisec.test(operand))) {
+                    console.log(operand);
+                    document.getElementById('result').textContent = 'Invalid time format. Please use MM:SS.mm';
+                    return;
+                }
+
+                if ((operation === 'multiply' || operation === 'divide') && isNaN(operand)) {
+                    document.getElementById('result').textContent = 'Operand must be a number';
+                    return;
+                }
+
+                const timeParts = timeInput.split(':');
+                const minutes = parseInt(timeParts[0]);
+                const secondsParts = timeParts[1].split('.');
+                const seconds = parseInt(secondsParts[0]);
+                const milliseconds = parseInt(secondsParts[1] || 0);
+
+                let resultMilliseconds = (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
+
+                if (operation === 'add' || operation === 'subtract') {
+                    const otimeParts = operand.split(':');
+                    const ominutes = parseInt(otimeParts[0]);
+                    const osecondsParts = otimeParts[1].split('.');
+                    const oseconds = parseInt(osecondsParts[0]);
+                    const omilliseconds = parseInt(osecondsParts[1] || 0);
+
+                    resultMilliseconds += (ominutes * 60 * 1000) + (oseconds * 1000) + omilliseconds;
+                } else if (operation == 'multiply') {
+                    resultMilliseconds *= parseFloat(operand);
+                } else {
+                    resultMilliseconds /= parseFloat(operand);
+                }
+
+                let resultMinutes = Math.floor(resultMilliseconds / (60 * 1000));
+                let remainingMilliseconds = resultMilliseconds % (60 * 1000);
+                let resultSeconds = Math.floor(remainingMilliseconds / 1000);
+                resultMilliseconds = remainingMilliseconds % 1000;
+
+                document.getElementById('result').textContent = `Result: ${resultMinutes}:${String(resultSeconds).padStart(2, '0')}.${String(resultMilliseconds).padStart(3, '0')}`;
+        
+                document.getElementById('timeInput').value = '';
+                document.getElementById('operand').value = '';
+            };
+        </script>
+    </body>
+</html>
